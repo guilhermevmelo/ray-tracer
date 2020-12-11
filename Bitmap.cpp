@@ -3,10 +3,10 @@
 Bitmap::Bitmap(int width, int height, char* fileName)
         :width(width), height(height), filename(fileName) {
             image = (unsigned char *) malloc(width * height * BYTES_PER_PIXEL);
-            widthInBytes = width * BYTES_PER_PIXEL;
+            
+            memset(image, 0, width * height * BYTES_PER_PIXEL);
 
-            std::cout << "w: " << width << " h: " << height << " bpp: " << BYTES_PER_PIXEL << std::endl;
-            std::cout << "Image buffer size: " << sizeof(image) << std::endl;
+            widthInBytes = width * BYTES_PER_PIXEL;
         };
 
 Bitmap::~Bitmap() {
@@ -50,9 +50,6 @@ unsigned char* Bitmap::createBitmapInfoHeader(int height, int width) {
 void Bitmap::generateBitmapImage() {
     unsigned char padding[3] = {0, 0, 0};
     int paddingSize = (4 - (widthInBytes) % 4) % 4;
-
-    std::cout << "Padding: " << paddingSize << std::endl;
-
     int stride = (widthInBytes) + paddingSize;
 
     FILE* imageFile = fopen(filename, "wb");
@@ -63,22 +60,16 @@ void Bitmap::generateBitmapImage() {
     unsigned char* infoHeader = createBitmapInfoHeader(height, width);
     fwrite(infoHeader, 1, INFO_HEADER_SIZE, imageFile);
 
-    // int i;
-    // for (i = 0; i < height; i++) {
-    //     fwrite(image + (i*widthInBytes), BYTES_PER_PIXEL, width, imageFile);
-    //     fwrite(padding, 1, paddingSize, imageFile);
-    // }
-
     fwrite(image, BYTES_PER_PIXEL, width * height, imageFile);
     fwrite(padding, 1, paddingSize, imageFile);
 
     fclose(imageFile);
-    std::cout << widthInBytes << std::endl;
+
     std::cout << filename << " saved." << std::endl;
 }
 
 void Bitmap::setPixel(int i, int j, unsigned char red, unsigned char green, unsigned char blue) {
-    image[i * widthInBytes + j] = red;
-    image[i * widthInBytes + j + 1] = green;
-    image[i * widthInBytes + j + 2] = blue;
+    image[(height - i) * widthInBytes + j * BYTES_PER_PIXEL] = red;
+    image[(height - i) * widthInBytes + j * BYTES_PER_PIXEL + 1] = green;
+    image[(height - i) * widthInBytes + j * BYTES_PER_PIXEL + 2] = blue;
 }
