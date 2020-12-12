@@ -1,3 +1,4 @@
 .vscode
 *.bmp
 raytracer
+.DS_Store
